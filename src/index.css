@@ -1,0 +1,48 @@
+  .top-menu-container {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
+    align-items: center;
+    z-index: 99;
+    height: 100px;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    font-size: 30px;
+  }
+
+  .roundBtn {
+    margin-right: 60px;
+    font-size: -webkit-xxx-large;
+    color: teal;
+  }
+
+  .global-container {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 98vh;
+  }
+
+  .wall-container {
+    margin-left: 5rem !important;
+    margin-right: 5rem !important;
+    width: 100%;
+    height: 90%;
+  }
+
+  .userMenu {
+    margin-right: 60px !important;
+  }
+
+
+  .bottom {
+    bottom: 20px;
+    position: absolute !important;
+    width: 100%
+  }
+
+  .Logoff {
+    width: 90% !important;
+    margin-left: 15px !important;
+  }
