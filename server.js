@@ -219,7 +219,7 @@ app.post('/newmessage', upload.none(), (req, res) => {
 // try webSocket
 let server = http.createServer(app);
 // const websocketServer = new WebSocket.Server({ server: server, path: '/test/' });
-const websocketServer = new WebSocket.Server({ server: server, path: '/test/' });
+const websocketServer = new WebSocket.Server({ server: server, path: '/chat/' });
 
 websocketServer.on('connection', function connection(webSocketClient, request, clients) {
   //send feedback to the incoming connection
@@ -252,6 +252,20 @@ websocketServer.on('connection', function connection(webSocketClient, request, c
       });
     }
   });
+  // webSocketClient.on('close', function() {
+  //     console.log("***** I'm the logout endpoint");
+  // let sessionId = req.cookies.sid;
+  // let username = sessions[sessionId];
+  // delete sessions[sessionId];
+  // delete activeUsers[username];
+  // res.clearCookie('sid');
+  // res.send(
+  //   JSON.stringify({
+  //     success: true
+  //   })
+  // );
+  // });
+
   webSocketClient.on('upgrade', response => {
     console.log('response in upgrade', JSON.stringify(response));
     console.log('request.headers in upgrade', request.headers);

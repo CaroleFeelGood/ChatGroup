@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Feed, Segment, Form, Button, Header, Grid } from 'semantic-ui-react';
 
-const URL = 'ws://localhost:3001/test/';
+const URL = 'ws://localhost:3001/chat/';
 const ws = new WebSocket(URL);
 class U_Chat extends Component {
   constructor(props) {
