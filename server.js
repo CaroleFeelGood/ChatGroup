@@ -180,37 +180,6 @@ app.get('/checklogin', (req, res) => {
     })
   );
 });
-// get user online
-app.get('/useronline', (req, res) => {
-  res.send(JSON.stringify(Object.keys(activeUsers)));
-  return;
-});
-
-// newmessage endpoint
-app.post('/newmessage', upload.none(), (req, res) => {
-  console.log('***** inside new message');
-  let sessionId = req.cookies.sid;
-  let username = sessions[sessionId];
-  let memberConnected = getMember(sessions[sessionId]);
-  if (memberConnected) {
-    let firtLetters = getInitiales(memberConnected.firstname, memberConnected.lastname);
-    let msg = req.body.msg;
-    let newMsg = {
-      username: username,
-      initiales: firtLetters,
-      message: msg,
-      date: moment().format('MMMM Do YYYY, h:mm:ss a')
-    };
-    messages = messages.concat(newMsg);
-    activingUsers(username);
-
-    res.send(
-      JSON.stringify({
-        success: true
-      })
-    );
-  }
-});
 
 // Your endpoints go before this line
 //
@@ -220,51 +189,57 @@ app.post('/newmessage', upload.none(), (req, res) => {
 let server = http.createServer(app);
 // const websocketServer = new WebSocket.Server({ server: server, path: '/test/' });
 const websocketServer = new WebSocket.Server({ server: server, path: '/chat/' });
+const typesDef = {
+  USER_EVENT: 'userevent',
+  CONTENT_CHANGE: 'contentchange'
+};
 
 websocketServer.on('connection', function connection(webSocketClient, request, clients) {
   //send feedback to the incoming connection
-  console.info('websocket connection open', request.headers);
   //when a message is received
   webSocketClient.on('message', message => {
     //for each websocket client
     let msgReceive = JSON.parse(message);
-    let feCookie = msgReceive.cookie.split('=')[1];
-    let sessionId = feCookie;
-    let username = sessions[sessionId];
-    let memberConnected = getMember(sessions[sessionId]);
-
-    if (memberConnected) {
-      console.log('memberConnected', memberConnected);
-      let firtLetters = getInitiales(memberConnected.firstname, memberConnected.lastname);
-      let newMsg = {
-        username: username,
-        initiales: firtLetters,
-        message: msgReceive.message,
-        date: moment().format('MMMM Do YYYY, h:mm:ss a')
-      };
-      messages = messages.concat(newMsg);
+    if (msgReceive.type === typesDef.USER_EVENT) {
+      // let username = msgReceive;
       websocketServer.clients.forEach(function each(client) {
-        console.log('in map clients');
-        if (client !== webSocketClient && client.readyState === WebSocket.OPEN) {
-          //send the client the current message
-          client.send(JSON.stringify(messages));
-        }
+        let responses = {
+          type: msgReceive.type,
+          data: Object.keys(activeUsers)
+        };
+        client.send(JSON.stringify(responses));
       });
+    } else if (msgReceive.type === typesDef.CONTENT_CHANGE) {
+      let feCookie = msgReceive.cookie.split('=')[1];
+      let sessionId = feCookie;
+      let username = sessions[sessionId];
+      let memberConnected = getMember(sessions[sessionId]);
+
+      if (memberConnected) {
+        let firtLetters = getInitiales(memberConnected.firstname, memberConnected.lastname);
+        let newMsg = {
+          username: username,
+          initiales: firtLetters,
+          message: msgReceive.message,
+          date: moment().format('MMMM Do YYYY, h:mm:ss a')
+        };
+        messages = messages.concat(newMsg);
+        activingUsers(username);
+        websocketServer.clients.forEach(function each(client) {
+          // if (client !== webSocketClient && client.readyState === WebSocket.OPEN) {
+          //send the client the current message
+          let responses = {
+            type: msgReceive.type,
+            data: messages
+          };
+          client.send(JSON.stringify(responses));
+        });
+      }
     }
   });
-  // webSocketClient.on('close', function() {
-  //     console.log("***** I'm the logout endpoint");
-  // let sessionId = req.cookies.sid;
-  // let username = sessions[sessionId];
-  // delete sessions[sessionId];
-  // delete activeUsers[username];
-  // res.clearCookie('sid');
-  // res.send(
-  //   JSON.stringify({
-  //     success: true
-  //   })
-  // );
-  // });
+  webSocketClient.on('close', function() {
+    console.log("***** I'm the logout websocket");
+  });
 
   webSocketClient.on('upgrade', response => {
     console.log('response in upgrade', JSON.stringify(response));

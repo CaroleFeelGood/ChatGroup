@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Form, Grid, Header, Segment } from 'semantic-ui-react';
 
+const URL = 'ws://localhost:3001/chat/';
+const ws = new WebSocket(URL);
 class U_Login extends Component {
   constructor(props) {
     super(props);
@@ -23,6 +25,7 @@ class U_Login extends Component {
       let data = new FormData();
       data.append('username', this.state.username);
       data.append('password', this.state.password);
+
       let response = await fetch('/login', {
         method: 'POST',
         body: data,
@@ -34,6 +37,12 @@ class U_Login extends Component {
         alert('login failed');
         return;
       }
+      let newLogin = {
+        type: 'userevent',
+        message: data
+        // cookie: document.cookie
+      };
+      ws.send(JSON.stringify(newLogin));
       this.props.dispatch({
         type: 'login-success',
         initiales: body.initials

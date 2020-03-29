@@ -19,8 +19,6 @@ class U_Chat extends Component {
   };
 
   componentDidMount() {
-    console.log('this.props.login', this.props.login);
-    // if (this.props.login) {
     ws.onopen = () => {
       // on connecting, do nothing but log it to the console
       console.log('connected');
@@ -28,15 +26,13 @@ class U_Chat extends Component {
     };
     ws.onmessage = event => {
       // on receiving a message, add it to the list of messages
-      console.log('event test', event.data);
       if (event.data) {
         const messages = JSON.parse(event.data);
-        console.log('message in componentDidMount', messages);
-        this.setState({
-          events: messages,
-          loading: false
-        });
-        // this.addMessage(messages);
+        if (messages.type === 'contentchange')
+          this.setState({
+            events: messages.data,
+            loading: false
+          });
       }
     };
 
@@ -48,29 +44,29 @@ class U_Chat extends Component {
     // }
   }
 
-  addMessage = message => {
-    let newMsg = {
-      username: 'toto',
-      initiales: 'CP',
-      message: message
-      // date: moment().format('MMMM Do YYYY, h:mm:ss a')
-    };
-    console.log('message in addMessage', newMsg);
-    this.setState({ events: [...this.state.events, newMsg], loading: false });
-  };
+  // addMessage = message => {
+  //   let newMsg = {
+  //     username: 'toto',
+  //     initiales: 'CP',
+  //     message: message
+  //     // date: moment().format('MMMM Do YYYY, h:mm:ss a')
+  //   };
+  //   console.log('message in addMessage', newMsg);
+  //   this.setState({ events: [...this.state.events, newMsg], loading: false });
+  // };
 
   onSubmit = event => {
     if (this.state.message !== '' && this.props.login) {
       event.preventDefault();
-      console.log('this.state.message', this.state.message);
-      console.log('document.cookie', document.cookie);
+
       let newSend = {
+        type: 'contentchange',
         message: this.state.message,
         cookie: document.cookie
       };
       ws.send(JSON.stringify(newSend));
 
-      this.addMessage(this.state.message);
+      // this.addMessage(this.state.message);
       this.setState({ message: '' });
     }
   };
@@ -89,16 +85,12 @@ class U_Chat extends Component {
         <Segment style={{ overflow: 'auto', maxHeight: '460px' }}>
           <Feed>
             {this.state.events.map((event, index) => {
-              // console.log('event', event);
-
               return (
                 <Segment key={index}>
                   <Feed.Event>
-                    {/* <Feed.Label>{event.intiales}</Feed.Label> */}
                     <Feed.Content>
                       <Feed.Summary>
                         <Feed.User>{event.username}</Feed.User>
-                        {/* <Feed.Content>{event.message}</Feed.Content> */}
                         {' ' + event.message}
                         <Feed.Date>{event.date}</Feed.Date>
                       </Feed.Summary>
