@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Feed, Segment, Form, Button, Header, Grid } from 'semantic-ui-react';
 
 const URL = 'ws://localhost:3001/test/';
-
+const ws = new WebSocket(URL);
 class U_Chat extends Component {
   constructor(props) {
     super(props);
@@ -18,18 +18,17 @@ class U_Chat extends Component {
     this.setState({ message: event.target.value });
   };
 
-  ws = new WebSocket(URL);
-
   componentDidMount() {
-    this.ws.onopen = () => {
+    console.log('this.props.login', this.props.login);
+    // if (this.props.login) {
+    ws.onopen = () => {
       // on connecting, do nothing but log it to the console
       console.log('connected');
       // this.ws.send('connected');
     };
-
-    this.ws.onmessage = event => {
+    ws.onmessage = event => {
       // on receiving a message, add it to the list of messages
-      console.log('event.data', event.data);
+      console.log('event test', event.data);
       if (event.data) {
         const messages = JSON.parse(event.data);
         console.log('message in componentDidMount', messages);
@@ -41,14 +40,12 @@ class U_Chat extends Component {
       }
     };
 
-    this.ws.onclose = () => {
+    ws.onclose = () => {
       console.log('disconnected');
       // automatically try to reconnect on connection loss
-      // this.setState({
-      //   ws: new WebSocket(URL)
-      // });
       this.ws = new WebSocket(URL);
     };
+    // }
   }
 
   addMessage = message => {
@@ -66,7 +63,13 @@ class U_Chat extends Component {
     if (this.state.message !== '' && this.props.login) {
       event.preventDefault();
       console.log('this.state.message', this.state.message);
-      this.ws.send(this.state.message);
+      console.log('document.cookie', document.cookie);
+      let newSend = {
+        message: this.state.message,
+        cookie: document.cookie
+      };
+      ws.send(JSON.stringify(newSend));
+
       this.addMessage(this.state.message);
       this.setState({ message: '' });
     }
@@ -82,10 +85,12 @@ class U_Chat extends Component {
         <Header as="h2" color="teal" textAlign="center">
           Messages
         </Header>
+        {console.log('this.props.login in render', this.props.login)}
         <Segment style={{ overflow: 'auto', maxHeight: '460px' }}>
           <Feed>
             {this.state.events.map((event, index) => {
-              console.log('event', event);
+              // console.log('event', event);
+
               return (
                 <Segment key={index}>
                   <Feed.Event>

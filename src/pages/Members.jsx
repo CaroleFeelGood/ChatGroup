@@ -32,7 +32,7 @@ class U_Members extends Component {
       let body = JSON.parse(responseBody);
       this.setState({ users: body });
     };
-    setInterval(updateUserActive, 5000);
+    // setInterval(updateUserActive, 5000);
   }
 
   componentWillUnmount() {

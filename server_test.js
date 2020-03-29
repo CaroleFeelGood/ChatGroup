@@ -8,6 +8,9 @@ let multer = require('multer');
 const fs = require('fs');
 const WebSocket = require('ws');
 const http = require('http');
+const session = require('express-session');
+const uuid = require('uuid');
+
 let messages = []; //array for store all the chat messages
 let sessions = {}; //object associates sessions ids with usernames
 let membersData = require('./data/members.json');
@@ -55,12 +58,27 @@ let activingUsers = user => {
 
 // ========== server           =========================//
 let app = express();
+
+// try session-parser
+const map = new Map();
+//
+// We need the same instance of the session parser in express and
+// WebSocket server.
+//
+const sessionParser = session({
+  saveUninitialized: false,
+  secret: '$eCuRiTy',
+  resave: false
+});
+// try session-parser
+
 app.use(
   bodyParser.urlencoded({
     extended: false
   })
 );
 app.use(cookieParser());
+app.use(sessionParser);
 app.use('/', express.static(path.join(__dirname, 'build'))); // Needed for the HTML and JS files
 app.use('/', express.static(path.join(__dirname, 'public'))); // Needed for local assets
 
@@ -121,10 +139,12 @@ app.post('/login', upload.none(), (req, res) => {
     let expectedPassword = memberConnected.password;
     if (hPassword === expectedPassword) {
       let sessionId = generateIdSession();
+      req.session.userId = sessionId;
       sessions[sessionId] = username;
       activingUsers(username);
       let firtLetters = getInitiales(memberConnected.firstname, memberConnected.lastname);
       res.cookie('sid', sessionId);
+
       res.send(
         JSON.stringify({
           success: true,
@@ -218,21 +238,53 @@ app.post('/newmessage', upload.none(), (req, res) => {
 //
 // try webSocket
 let server = http.createServer(app);
-// const websocketServer = new WebSocket.Server({ server: server, path: '/test/' });
-const websocketServer = new WebSocket.Server({ server: server, path: '/test/' });
+const websocketServer = new WebSocket.Server({ noServer: true });
+// const websocketServer = new WebSocket.Server({ server: server });
+// server: server, path: '/test/',
+
+// server.on('upgrade', function(request, socket, head) {
+//   // console.log('Parsing session from request...', request.headers);
+//   // // console.log('Parsing session from socket...', socket);
+//   // console.log('Parsing session from head...', head);
+
+//   // sessionParser(request, {}, () => {
+//   //   if (!request.session.userId) {
+//   //     socket.destroy();
+//   //     return;
+//   //   }
+
+//   //   console.log('Session is parsed!');
+//   var login = false;
+//   // if (login) {
+//   websocketServer.handleUpgrade(request, socket, head, function(ws) {
+//     // console.log('in handleUpgrade', request.headers);
+//     websocketServer.emit('connection', ws, request);
+//   });
+//   // }
+//   // });
+// });
 
 websocketServer.on('connection', function connection(webSocketClient, request, clients) {
   //send feedback to the incoming connection
-  console.info('websocket connection open', request.headers);
+  // console.info('websocket connection open -  request', request);
+  // console.info('websocket connection open', request.headers);
+  // const userId = request.session.userId;
+  // map.set(userId, ws);
+  webSocketClient.on('upgrade', response => {
+    console.log('response in upgrade', JSON.stringify(response));
+    console.log('request.headers in upgrade', request.headers);
+  });
   //when a message is received
   webSocketClient.on('message', message => {
     //for each websocket client
+    // console.log(`Received message ${message} from user ${userId}`);
+    // console.info('websocket message open -  request', request);
+    // console.info('websocket message open -  client', client);
+    console.log('message', JSON.parse(message));
     let msgReceive = JSON.parse(message);
-    let feCookie = msgReceive.cookie.split('=')[1];
-    let sessionId = feCookie;
+    let sessionId = msgReceive.cookies;
     let username = sessions[sessionId];
     let memberConnected = getMember(sessions[sessionId]);
-
     if (memberConnected) {
       console.log('memberConnected', memberConnected);
       let firtLetters = getInitiales(memberConnected.firstname, memberConnected.lastname);
@@ -247,15 +299,15 @@ websocketServer.on('connection', function connection(webSocketClient, request, c
         console.log('in map clients');
         if (client !== webSocketClient && client.readyState === WebSocket.OPEN) {
           //send the client the current message
+          console.log(' client');
           client.send(JSON.stringify(messages));
         }
       });
     }
   });
-  webSocketClient.on('upgrade', response => {
-    console.log('response in upgrade', JSON.stringify(response));
-    console.log('request.headers in upgrade', request.headers);
-  });
+  // webSocketClient.on('close', function() {
+  //   map.delete(userId);
+  // });
 });
 //
 // Start the server.

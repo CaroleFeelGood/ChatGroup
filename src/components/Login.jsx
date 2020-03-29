@@ -26,7 +26,7 @@ class U_Login extends Component {
       let response = await fetch('/login', {
         method: 'POST',
         body: data,
-        credentials: 'include'
+        credentials: 'same-origin'
       });
       let responseBody = await response.text();
       let body = JSON.parse(responseBody);
