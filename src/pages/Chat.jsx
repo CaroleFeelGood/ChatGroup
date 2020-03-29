@@ -22,7 +22,6 @@ class U_Chat extends Component {
     ws.onopen = () => {
       // on connecting, do nothing but log it to the console
       console.log('connected');
-      // this.ws.send('connected');
     };
     ws.onmessage = event => {
       // on receiving a message, add it to the list of messages
@@ -44,17 +43,6 @@ class U_Chat extends Component {
     // }
   }
 
-  // addMessage = message => {
-  //   let newMsg = {
-  //     username: 'toto',
-  //     initiales: 'CP',
-  //     message: message
-  //     // date: moment().format('MMMM Do YYYY, h:mm:ss a')
-  //   };
-  //   console.log('message in addMessage', newMsg);
-  //   this.setState({ events: [...this.state.events, newMsg], loading: false });
-  // };
-
   onSubmit = event => {
     if (this.state.message !== '' && this.props.login) {
       event.preventDefault();
@@ -66,7 +54,6 @@ class U_Chat extends Component {
       };
       ws.send(JSON.stringify(newSend));
 
-      // this.addMessage(this.state.message);
       this.setState({ message: '' });
     }
   };
