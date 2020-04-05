@@ -1,6 +1,8 @@
 ## Description
 
-A chat group with websocket
+An app for chat group with Websocket
+
+Semantic UI is use for React style
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
