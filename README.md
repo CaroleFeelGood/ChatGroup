@@ -21,7 +21,7 @@ In the project directory, you can run:
 execute : npm run dev in order run both server (Node and Fronted)
 or
 execute:
-nodemon server.js
+node server.js
 and
 npm start
 

@@ -40,7 +40,6 @@ class U_Login extends Component {
       let newLogin = {
         type: 'userevent',
         message: data
-        // cookie: document.cookie
       };
       ws.send(JSON.stringify(newLogin));
       this.props.dispatch({

@@ -86,6 +86,7 @@ app.post('/signup', upload.none(), (req, res) => {
     sessions[sessionId] = username;
     membersData.users.push(member);
     fs.writeFile('./data/members.json', JSON.stringify(membersData), 'utf8', function(err) {
+      console.log('write in file');
       if (err) {
         console.log('An error occured while writing JSON Object to File.');
         return console.log(err);
@@ -201,7 +202,6 @@ websocketServer.on('connection', function connection(webSocketClient, request, c
     //for each websocket client
     let msgReceive = JSON.parse(message);
     if (msgReceive.type === typesDef.USER_EVENT) {
-      // let username = msgReceive;
       websocketServer.clients.forEach(function each(client) {
         let responses = {
           type: msgReceive.type,

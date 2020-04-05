@@ -1,23 +1,6 @@
 {
-  "users": [{
-    "username": "test",
-    "firstname": "moi",
-    "lastname": "toi",
-    "password": "2104146c46c2aafcf9ec72c979a25563e06f6d68"
-  }, {
-    "username": "firefox",
-    "firstname": "tutu",
-    "lastname": "tata",
-    "password": "2104146c46c2aafcf9ec72c979a25563e06f6d68"
-  }, {
-    "username": "carole",
-    "firstname": "carole",
-    "lastname": "test",
-    "password": "2104146c46c2aafcf9ec72c979a25563e06f6d68"
-  }, {
-    "username": "pheelgood",
-    "firstname": "test",
-    "lastname": "ici",
-    "password": "bf6ca50e6cb1ef02d4c39c09442ea6e4673a4c97"
-  }]
+  "users": [
+    { "username": "test", "firstname": "moi", "lastname": "toi", "password": "2104146c46c2aafcf9ec72c979a25563e06f6d68" },
+    { "username": "firefox", "firstname": "tutu", "lastname": "tata", "password": "2104146c46c2aafcf9ec72c979a25563e06f6d68" }
+  ]
 }
